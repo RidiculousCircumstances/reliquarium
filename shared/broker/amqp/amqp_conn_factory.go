@@ -2,6 +2,7 @@ package amqp
 
 import (
 	"crypto/tls"
+	"github.com/rabbitmq/amqp091-go"
 	"net"
 	"time"
 

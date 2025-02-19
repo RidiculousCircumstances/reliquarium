@@ -2,6 +2,7 @@ package amqp
 
 import (
 	"context"
+	"github.com/rabbitmq/amqp091-go"
 	"reliquarium/shared/broker/interfaces"
 )
 

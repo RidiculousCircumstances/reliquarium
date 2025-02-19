@@ -4,6 +4,7 @@ go 1.23.3
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.4.4
+	github.com/go-co-op/gocron v1.37.0
 	github.com/google/wire v0.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/minio/minio-go/v7 v7.0.85
@@ -21,7 +22,9 @@ require (
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 	golang.org/x/net v0.33.0 // indirect

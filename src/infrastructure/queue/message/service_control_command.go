@@ -1,12 +1,15 @@
 package message
 
-type CommandType string
-
-const (
-	Pause  CommandType = "pause"
-	Resume CommandType = "resume"
+import (
+	domainIntf "reliquarium/src/domain/interfaces"
 )
 
 type ServiceControlCommand struct {
-	Command CommandType `json:"command"`
+	Command domainIntf.CommandType `json:"command"`
+}
+
+func NewServiceControlCommand(Command domainIntf.CommandType) *ServiceControlCommand {
+	return &ServiceControlCommand{
+		Command: Command,
+	}
 }

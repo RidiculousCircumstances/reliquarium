@@ -10,12 +10,19 @@ import (
 	lifecycleIntf "reliquarium/shared/lifecycle/interfaces"
 	"reliquarium/shared/logger"
 	loggerIntf "reliquarium/shared/logger/interfaces"
-	"reliquarium/src/application/consumer"
+	consumerIntf "reliquarium/src/application/consumer/interfaces"
+	appIntf "reliquarium/src/application/interfaces"
+	"reliquarium/src/application/publisher"
+	"reliquarium/src/application/publisher/interfaces"
 	"reliquarium/src/application/service/storage"
 	storageIntf "reliquarium/src/application/service/storage/interfaces"
+	"reliquarium/src/application/usecase"
+	"reliquarium/src/domain"
+	domainIntf "reliquarium/src/domain/interfaces"
+	"reliquarium/src/infrastructure/cron"
 	"reliquarium/src/infrastructure/queue"
+	"reliquarium/src/infrastructure/service"
 	infraStorageIntf "reliquarium/src/infrastructure/storage"
-	"time"
 )
 
 func ProvideLogger(config *env.Config) (loggerIntf.Logger, error) {
@@ -27,9 +34,11 @@ func ProvideLifecycleHooks(
 	handlerCfgs []queue.HandlerConfig,
 	logger loggerIntf.Logger,
 	broker brokerIntf.MessageBroker,
+	cronTaskConfigs []cron.CronTaskConfig,
 ) []lifecycleIntf.Hook {
 	return []lifecycleIntf.Hook{
 		queue.NewConsumerHook(handlerCfgs, logger, broker),
+		cron.NewCronHook(logger, cronTaskConfigs),
 	}
 }
 
@@ -62,32 +71,45 @@ func ProvideMessageBroker(cfg *env.Config, logger loggerIntf.Logger) brokerIntf.
 	})
 }
 
-func NewRedisClient(cfg *env.Config) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr:               cfg.RedisAddr,     // Хост и порт Redis, например, "localhost:6379"
-		Password:           cfg.RedisPassword, // Пароль для подключения (если есть)
-		DB:                 cfg.RedisDB,       // Номер базы данных (по умолчанию 0)
-		DialTimeout:        5 * time.Second,   // Таймаут для подключения
-		ReadTimeout:        3 * time.Second,   // Таймаут чтения
-		WriteTimeout:       3 * time.Second,   // Таймаут записи
-		PoolSize:           10,                // Размер пула соединений
-		MinIdleConns:       2,                 // Минимальное количество свободных соединений
-		IdleTimeout:        5 * time.Minute,   // Таймаут для свободных соединений
-		IdleCheckFrequency: 1 * time.Minute,   // Частота проверки свободных соединений
-		TLSConfig:          nil,               // Настройки TLS (если требуется защищённое соединение)
-	})
-}
-
 func ProvideStorageHelper(cfg *env.Config) *storage.Helper {
 	return storage.NewHelper(cfg.SnapshotBucket)
+}
+
+func ProvideCreateSnapshot(logger loggerIntf.Logger) consumerIntf.HandleSnapshot {
+	return usecase.NewHandleSnapshot(logger)
+}
+
+func ProvideOrchestrateServices(
+	logger loggerIntf.Logger,
+	registry domainIntf.ServiceRegistry,
+	publisher appIntf.CommandPublisher,
+	handleSnapshot consumerIntf.HandleSnapshot,
+) consumerIntf.OrchestrateServices {
+	return usecase.NewOrchestrateServices(logger, registry, publisher, handleSnapshot)
 }
 
 func ProvideHandlerConfigs(
 	cfg *env.Config,
 	logger loggerIntf.Logger,
-	snapshotTriggerHandler consumer.SnapshotTriggerMessageHandler,
+	orchestrateServices consumerIntf.OrchestrateServices,
 ) []queue.HandlerConfig {
-	return queue.BuildHandlerConfigs(cfg, logger, snapshotTriggerHandler)
+	return queue.BuildHandlerConfigs(cfg, logger, orchestrateServices)
+}
+
+func ProvideCronTaskConfigs(
+	cfg *env.Config,
+	logger loggerIntf.Logger,
+	commandPublisher appIntf.CommandPublisher,
+) []cron.CronTaskConfig {
+	return cron.BuildCronTaskConfigs(cfg, logger, commandPublisher)
+}
+
+func ProvideServiceCommandClient(broker brokerIntf.MessageBroker) interfaces.CommandClient {
+	return service.NewClient(broker)
+}
+
+func ProvideCommandPublisher(client interfaces.CommandClient) appIntf.CommandPublisher {
+	return publisher.NewCommandPublisher(client)
 }
 
 func ProvideStorageClient(cfg *env.Config) (storageIntf.StorageClient, error) {
@@ -108,6 +130,14 @@ func ProvideStorageClient(cfg *env.Config) (storageIntf.StorageClient, error) {
 	return minioClient, nil
 }
 
-func ProvideStorageService(client storageIntf.StorageClient) actionIntf.StorageService {
-	return storage.NewService(client)
+//func ProvideStorageService(client storageIntf.StorageClient) actionIntf.StorageService {
+//	return storage.NewService(client)
+//}
+
+func ProvideShutdownRegistry() domainIntf.ServiceRegistry {
+	return service.NewRegistry([]domain.ServiceName{
+		domain.Eden,
+		domain.TraceFace,
+		domain.StreamMiner,
+	})
 }

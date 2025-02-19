@@ -35,12 +35,12 @@ func main() {
 	// Ожидаем завершения работы приложения
 	select {
 	case sig := <-stopSignal:
-		app.Logger.Info("Received shutdown signal", zap.String("signal", sig.String()))
+		app.Logger.Info("Received service signal", zap.String("signal", sig.String()))
 	}
 
 	// Завершаем жизненный цикл
 	if err := appLifecycle.Shutdown(ctx); err != nil {
-		app.Logger.Fatal("Failed to gracefully shutdown application", zap.Error(err))
+		app.Logger.Fatal("Failed to gracefully service application", zap.Error(err))
 	}
 
 	// Завершаем работу всех сервисов

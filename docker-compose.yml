@@ -1,0 +1,30 @@
+services:
+
+  reliquarium:
+    build:
+      context: .
+      dockerfile: deployment/go/Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    container_name: reliquarium
+    volumes:
+      - .:/reliquarium
+    user: "${UID}:${GID}"
+    command: >
+      sh -c "chown -R ${UID}:${GID} /reliquarium/cmd && dlv debug /reliquarium/cmd/main.go --headless --listen=:2345 --api-version=2 --accept-multiclient --log"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    stdin_open: true
+    ports:
+      - "23453:2345"
+    tty: true
+    networks:
+      - stream-forge
+networks:
+  stream-forge:
+    driver: bridge
+    external: true
+

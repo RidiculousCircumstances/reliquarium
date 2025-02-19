@@ -1,7 +1,14 @@
 package interfaces
 
-import "context"
+import (
+	"context"
+	"reliquarium/src/infrastructure/queue/message"
+)
 
-type CreateSnapshot interface {
-	Process(ctx context.Context) error
+type HandleSnapshot interface {
+	Process(ctx context.Context, payload *message.TakeSnapshotPayload) error
+}
+
+type OrchestrateServices interface {
+	Process(ctx context.Context, event *message.CommandConfirmationEvent) error
 }

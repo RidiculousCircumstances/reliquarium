@@ -17,13 +17,13 @@ type HandlerConfig struct {
 func BuildHandlerConfigs(
 	env *env.Config,
 	logger loggerIntf.Logger,
-	createSnapshot consumerIntf.CreateSnapshot,
+	orchestrateServices consumerIntf.OrchestrateServices,
 ) []HandlerConfig {
 	return []HandlerConfig{
 		{
 			QueueName:    env.ReliquariumConfirmationQueueName,
 			ExchangeName: env.ReliquariumConfirmationExchangeName,
-			Handler:      consumer.NewSnapshotTriggerMessageHandler(logger, createSnapshot),
+			Handler:      consumer.NewSnapshotTriggerMessageHandler(logger, orchestrateServices),
 		},
 	}
 }

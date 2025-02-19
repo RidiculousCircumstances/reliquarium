@@ -41,7 +41,7 @@ func (c *ConsumerHook) Start(ctx context.Context) error {
 func (c *ConsumerHook) Shutdown(ctx context.Context) error {
 	// Закрываем подписчика
 	if err := c.Broker.Close(); err != nil {
-		c.Logger.Error("Failed to shutdown subscriber", zap.Error(err))
+		c.Logger.Error("Failed to service subscriber", zap.Error(err))
 		return ErrConsumerShutdown
 	}
 
