@@ -29,22 +29,21 @@ func (c *CronHook) Setup(ctx context.Context) error {
 	return nil
 }
 
-// Start - Запускает Cron-задачи с индивидуальными расписаниями
+// Start - Запускает Cron-задачи согласно их cron-выражениям
 func (c *CronHook) Start(ctx context.Context) error {
 	for _, taskConfig := range c.tasks {
 		schedule := taskConfig.Schedule
 		task := taskConfig.Task
 
-		_, err := c.scheduler.Every(1).Day().At(schedule).Do(func() {
+		//_, err := c.scheduler.Cron(schedule).Do(func() {
+		job, err := c.scheduler.Every(1).StartAt(time.Now().Add(5 * time.Second)).Do(func() {
 			c.logger.Info("Executing cron task", zap.String("schedule", schedule))
-
-			// Запускаем задачу в отдельной горутине
-			go func() {
-				if err := task.Run(ctx); err != nil {
-					c.logger.Error("Failed to execute cron task", zap.String("schedule", schedule), zap.Error(err))
-				}
-			}()
+			// Запускаем задачу в отдельной горутине, чтобы не блокировать планировщик
+			if err := task.Run(ctx); err != nil {
+				c.logger.Error("Failed to execute cron task", zap.String("schedule", schedule), zap.Error(err))
+			}
 		})
+		job.LimitRunsTo(1)
 		if err != nil {
 			return err
 		}

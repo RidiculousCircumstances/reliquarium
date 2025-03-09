@@ -22,7 +22,7 @@ func BuildCronTaskConfigs(
 ) []CronTaskConfig {
 	return []CronTaskConfig{
 		{
-			Schedule: "03:00",
+			Schedule: "0 3 * * *",
 			Task:     job.NewSnapshotTriggerJob(publisher),
 		},
 	}

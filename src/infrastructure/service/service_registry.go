@@ -2,18 +2,18 @@ package service
 
 import (
 	"reliquarium/src/domain"
-	"reliquarium/src/domain/interfaces"
+	domainIntf "reliquarium/src/domain/interfaces"
 	"sync"
 )
 
 type Registry struct {
-	services map[domain.ServiceName]*domain.Service
+	services map[domainIntf.ServiceName]*domain.Service
 	mu       sync.RWMutex
 }
 
-func NewRegistry(serviceNames []domain.ServiceName) *Registry {
+func NewRegistry(serviceNames []domainIntf.ServiceName) *Registry {
 	registry := &Registry{
-		services: make(map[domain.ServiceName]*domain.Service),
+		services: make(map[domainIntf.ServiceName]*domain.Service),
 	}
 	for _, name := range serviceNames {
 		registry.services[name] = domain.NewService(name)
@@ -22,7 +22,7 @@ func NewRegistry(serviceNames []domain.ServiceName) *Registry {
 }
 
 // Подтверждение выполнения команды сервисом
-func (r *Registry) ConfirmServiceCommand(serviceName domain.ServiceName, command interfaces.CommandType) bool {
+func (r *Registry) ConfirmServiceCommand(serviceName domainIntf.ServiceName, command domainIntf.CommandType) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -34,7 +34,7 @@ func (r *Registry) ConfirmServiceCommand(serviceName domain.ServiceName, command
 }
 
 // Проверяет, подтвердили ли все сервисы выполнение конкретной команды (pause, takeSnapshots, resume)
-func (r *Registry) IsCommandConfirmed(command interfaces.CommandType) bool {
+func (r *Registry) IsCommandConfirmed(command domainIntf.CommandType) bool {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -47,11 +47,11 @@ func (r *Registry) IsCommandConfirmed(command interfaces.CommandType) bool {
 }
 
 // Возвращает список сервисов, которые не подтвердили выполнение команды
-func (r *Registry) GetUnconfirmedServices(command interfaces.CommandType) []domain.ServiceName {
+func (r *Registry) GetUnconfirmedServices(command domainIntf.CommandType) []domainIntf.ServiceName {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	var unconfirmed []domain.ServiceName
+	var unconfirmed []domainIntf.ServiceName
 	for name, service := range r.services {
 		if !service.IsCommandConfirmed(command) {
 			unconfirmed = append(unconfirmed, name)

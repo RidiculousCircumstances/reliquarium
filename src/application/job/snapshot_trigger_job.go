@@ -8,13 +8,13 @@ import (
 )
 
 type SnapshotTriggerJob struct {
-	shutdownTrigger interfaces.CommandPublisher
+	pauseTrigger interfaces.CommandPublisher
 }
 
 func NewSnapshotTriggerJob(shutdownTrigger interfaces.CommandPublisher) *SnapshotTriggerJob {
-	return &SnapshotTriggerJob{shutdownTrigger: shutdownTrigger}
+	return &SnapshotTriggerJob{pauseTrigger: shutdownTrigger}
 }
 
 func (j *SnapshotTriggerJob) Run(ctx context.Context) error {
-	return j.shutdownTrigger.Publish(ctx, message.NewServiceControlCommand(domainIntf.Pause))
+	return j.pauseTrigger.Publish(ctx, message.NewServiceControlCommand(domainIntf.Pause))
 }

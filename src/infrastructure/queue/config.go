@@ -23,7 +23,7 @@ func BuildHandlerConfigs(
 		{
 			QueueName:    env.ReliquariumConfirmationQueueName,
 			ExchangeName: env.ReliquariumConfirmationExchangeName,
-			Handler:      consumer.NewSnapshotTriggerMessageHandler(logger, orchestrateServices),
+			Handler:      consumer.NewOrchestrateSnapshotMessageHandler(logger, orchestrateServices),
 		},
 	}
 }

@@ -8,26 +8,26 @@ import (
 	"reliquarium/src/infrastructure/queue/message"
 )
 
-type SnapshotTriggerMessageHandler struct {
+type OrchestrateSnapshotMessageHandler struct {
 	logger              loggerIntf.Logger
 	orchestrateServices consumerIntf.OrchestrateServices
 }
 
-func NewSnapshotTriggerMessageHandler(
+func NewOrchestrateSnapshotMessageHandler(
 	logger loggerIntf.Logger,
 	orchestrateServices consumerIntf.OrchestrateServices,
-) *SnapshotTriggerMessageHandler {
-	return &SnapshotTriggerMessageHandler{
+) *OrchestrateSnapshotMessageHandler {
+	return &OrchestrateSnapshotMessageHandler{
 		logger:              logger,
 		orchestrateServices: orchestrateServices,
 	}
 }
 
-func (mh *SnapshotTriggerMessageHandler) Handle(ctx context.Context, msg []byte) (bool, error) {
+func (mh *OrchestrateSnapshotMessageHandler) Handle(ctx context.Context, msg []byte) (bool, error) {
 	var reliquariumCommand message.CommandConfirmationEvent
 	err := json.Unmarshal(msg, &reliquariumCommand)
 	if err != nil {
-		mh.logger.Error("[SnapshotTriggerMessageHandler] failed unmarshalling message")
+		mh.logger.Error("[OrchestrateSnapshotMessageHandler] failed unmarshalling message")
 		return false, err
 	}
 

@@ -1,7 +1,11 @@
 package interfaces
 
-import (
-	"reliquarium/src/domain"
+type ServiceName string
+
+const (
+	Eden        ServiceName = "eden"
+	TraceFace   ServiceName = "trace_face"
+	StreamMiner ServiceName = "stream_miner"
 )
 
 type CommandType string
@@ -13,8 +17,8 @@ const (
 )
 
 type ServiceRegistry interface {
-	ConfirmServiceCommand(serviceName domain.ServiceName, command CommandType) bool
+	ConfirmServiceCommand(serviceName ServiceName, command CommandType) bool
 	IsCommandConfirmed(command CommandType) bool
-	GetUnconfirmedServices(command CommandType) []domain.ServiceName
+	GetUnconfirmedServices(command CommandType) []ServiceName
 	ResetServiceStates()
 }

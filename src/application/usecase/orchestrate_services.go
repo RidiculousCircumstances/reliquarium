@@ -56,7 +56,6 @@ func (uc *OrchestrateServices) Process(ctx context.Context, msg *message.Command
 	case domainIntf.Pause:
 		uc.logger.Info("All services paused, sending TakeSnapshots command")
 		return uc.publisher.Publish(ctx, message.NewServiceControlCommand(domainIntf.TakeSnapshots))
-
 	case domainIntf.TakeSnapshots:
 		uc.logger.Info("All snapshots taken, resuming services")
 		err := uc.publisher.Publish(ctx, message.NewServiceControlCommand(domainIntf.Resume))

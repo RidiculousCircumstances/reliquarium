@@ -17,7 +17,6 @@ import (
 	"reliquarium/src/application/service/storage"
 	storageIntf "reliquarium/src/application/service/storage/interfaces"
 	"reliquarium/src/application/usecase"
-	"reliquarium/src/domain"
 	domainIntf "reliquarium/src/domain/interfaces"
 	"reliquarium/src/infrastructure/cron"
 	"reliquarium/src/infrastructure/queue"
@@ -135,9 +134,9 @@ func ProvideStorageClient(cfg *env.Config) (storageIntf.StorageClient, error) {
 //}
 
 func ProvideShutdownRegistry() domainIntf.ServiceRegistry {
-	return service.NewRegistry([]domain.ServiceName{
-		domain.Eden,
-		domain.TraceFace,
-		domain.StreamMiner,
+	return service.NewRegistry([]domainIntf.ServiceName{
+		domainIntf.Eden,
+		//domainIntf.TraceFace,
+		//domainIntf.StreamMiner,
 	})
 }

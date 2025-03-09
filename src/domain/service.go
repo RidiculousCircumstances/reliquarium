@@ -5,21 +5,13 @@ import (
 	"sync"
 )
 
-type ServiceName string
-
-const (
-	Eden        ServiceName = "eden_service"
-	TraceFace   ServiceName = "trace_face_service"
-	StreamMiner ServiceName = "stream_miner_service"
-)
-
 type Service struct {
-	name              ServiceName
+	name              interfaces.ServiceName
 	confirmedCommands map[interfaces.CommandType]bool
 	mu                sync.RWMutex
 }
 
-func NewService(name ServiceName) *Service {
+func NewService(name interfaces.ServiceName) *Service {
 	return &Service{
 		name:              name,
 		confirmedCommands: make(map[interfaces.CommandType]bool),

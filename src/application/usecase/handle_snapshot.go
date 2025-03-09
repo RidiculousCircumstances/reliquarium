@@ -15,6 +15,6 @@ func NewHandleSnapshot(logger loggerIntf.Logger) *HandleSnapshot {
 }
 
 func (u *HandleSnapshot) Process(ctx context.Context, payload *message.TakeSnapshotPayload) error {
-	u.logger.Info("Processing HandleSnapshot started")
+	u.logger.Info("Processing snapshot results")
 	return nil
 }
