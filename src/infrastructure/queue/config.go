@@ -1,8 +1,8 @@
 package queue
 
 import (
+	"github.com/RidiculousCircumstances/netherway/v2"
 	"reliquarium/config/env"
-	"reliquarium/shared/broker/interfaces"
 	loggerIntf "reliquarium/shared/logger/interfaces"
 	"reliquarium/src/application/consumer"
 	consumerIntf "reliquarium/src/application/consumer/interfaces"
@@ -11,7 +11,7 @@ import (
 type HandlerConfig struct {
 	QueueName    string
 	ExchangeName string
-	Handler      interfaces.MessageHandler
+	Handler      netherway.MessageHandler
 }
 
 func BuildHandlerConfigs(

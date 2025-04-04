@@ -1,12 +1,10 @@
 package wire
 
 import (
+	"github.com/RidiculousCircumstances/netherway/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"reliquarium/config/env"
-	brokerLib "reliquarium/shared/broker"
-	"reliquarium/shared/broker/amqp"
-	brokerIntf "reliquarium/shared/broker/interfaces"
 	lifecycleIntf "reliquarium/shared/lifecycle/interfaces"
 	"reliquarium/shared/logger"
 	loggerIntf "reliquarium/shared/logger/interfaces"
@@ -32,7 +30,7 @@ func ProvideLifecycleHooks(
 	env *env.Config,
 	handlerCfgs []queue.HandlerConfig,
 	logger loggerIntf.Logger,
-	broker brokerIntf.MessageBroker,
+	broker netherway.MessageBroker,
 	cronTaskConfigs []cron.CronTaskConfig,
 ) []lifecycleIntf.Hook {
 	return []lifecycleIntf.Hook{
@@ -41,28 +39,26 @@ func ProvideLifecycleHooks(
 	}
 }
 
-func ProvideMessageBroker(cfg *env.Config, logger loggerIntf.Logger) brokerIntf.MessageBroker {
-	pubFactory := func(conn brokerIntf.Connection) brokerIntf.Publisher {
-		return brokerLib.NewPublisher(conn, logger)
+func ProvideMessageBroker(cfg *env.Config, logger loggerIntf.Logger) netherway.MessageBroker {
+	pubFactory := func(conn netherway.Connection) netherway.Publisher {
+		return netherway.NewPublisher(conn, logger)
 	}
 
-	subFactory := func(conn brokerIntf.Connection) brokerIntf.Subscriber {
-		return brokerLib.NewSubscriber(conn, logger)
+	subFactory := func(conn netherway.Connection) netherway.Subscriber {
+		return netherway.NewSubscriber(conn, logger)
 	}
 
-	connFactory := amqp.NewConnFactory(amqp.ConnConfig{
-		AmqpURI:                   cfg.RabbitMQURL,
-		PublisherChannelPoolSize:  10,
-		SubscriberChannelPoolSize: 10,
-		Exchanges: []amqp.Exchange{
+	connFactory := netherway.NewConnFactory(netherway.ConnConfig{
+		AmqpURI:                  cfg.RabbitMQURL,
+		PublisherChannelPoolSize: 10,
+		Exchanges: []netherway.Exchange{
 			{
 				Name: cfg.ReliquariumCommandExchangeName,
 				Type: "fanout",
 			},
 		},
 	})
-
-	return brokerLib.NewMessageBroker(brokerLib.Config{
+	return netherway.NewMessageBroker(netherway.Config{
 		PublisherFactory:  pubFactory,
 		SubscriberFactory: subFactory,
 		Logger:            logger,
@@ -103,7 +99,7 @@ func ProvideCronTaskConfigs(
 	return cron.BuildCronTaskConfigs(cfg, logger, commandPublisher)
 }
 
-func ProvideServiceCommandClient(broker brokerIntf.MessageBroker) interfaces.CommandClient {
+func ProvideServiceCommandClient(broker netherway.MessageBroker) interfaces.CommandClient {
 	return service.NewClient(broker)
 }
 
